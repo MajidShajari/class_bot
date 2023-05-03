@@ -37,7 +37,7 @@ URLPATH=https://www.example.com
 CLASS_DAY=1
 CLASS_BEGIN=08:30:00
 CLASS_DURATION=3600
-INPUT_NAME=John Doe
+INPUT_NAME=Majid Shajari
 ```
 ### License
 
