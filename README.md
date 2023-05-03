@@ -19,7 +19,7 @@ To run this script, you will need the following software installed on your syste
 ### Installing
 - Install Python 3.x from the official website.
 - Download and install Mozilla Firefox web browser.
-- Download GeckoDriver executable file from [here](https://github.com/mozilla/geckodriver/releases) and place it in a directory accessible from your system's PATH.
+- Download GeckoDriver executable file from *[here](https://github.com/mozilla/geckodriver/releases)* and place it in a directory accessible from your system's PATH.
 - Clone this repository or download the script `main.py` to your local machine.
 
 ### Configuration
@@ -41,4 +41,4 @@ INPUT_NAME=John Doe
 ```
 ### License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the *[LICENSE](./LICENSE)* file for details.
