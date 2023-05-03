@@ -1,5 +1,4 @@
-import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
@@ -9,33 +8,32 @@ from selenium.webdriver.common.keys import Keys
 from dotenv import dotenv_values
 
 
+def handle_error(error, browser):
+    print(f"ERROR >>>> {error.__class__.__name__}")
+    if browser:
+        browser.close()
+        print("<<<< Browser closed >>>>")
+        exit()
+
+
 def open_browser(url: str):
     browser = webdriver.Firefox()
     try:
+        print("<<<< Opening Browser >>>>")
         browser.get(url)
         btn_guest_element = WebDriverWait(browser, delay).until(
             EC.presence_of_element_located((By.ID, 'btn_guest')))
         btn_guest_element.click()
         browser.maximize_window()
         return browser
-    except TimeoutException as error:
-        print("ERROR >>>> TimeoutException")
-        browser.close()
-        print("<<<< Browser closed >>>>")
-        return
-    except WebDriverException as error:
-        print("ERROR >>>> WebDriverException")
-        browser.close()
-        print("<<<< Browser closed >>>>")
-        return
+    except (TimeoutException, WebDriverException) as error:
+        handle_error(error, browser)
+        return None
 
 
-def close_browser(browser, close_time):
-    c_time = 10
-    while close_time >= 0:
-        print(f"Browser is close in {close_time} seconds")
-        time.sleep(c_time)
-        close_time = close_time-c_time
+def close_browser(browser, close_delay):
+    print(f"Browser is close in {close_delay} seconds")
+    WebDriverWait(browser, close_delay).until(lambda _: False)
     browser.close()
 
 
@@ -45,64 +43,48 @@ def fill_input(browser):
             EC.presence_of_element_located((By.CLASS_NAME, 'full-width')))
         input_element.send_keys(config["INPUT_NAME"])
         input_element.send_keys(Keys.ENTER)
-        return browser
-    except TimeoutException as error:
-        print("ERROR >>>> TimeoutException")
-        browser.close()
-        print("<<<< Browser closed >>>>")
-        return
-    except WebDriverException as error:
-        print("ERROR >>>> WebDriverException")
-        browser.close()
-        print("<<<< Browser closed >>>>")
-        return
+        return True
+    except (TimeoutException, WebDriverException) as error:
+        handle_error(error, browser)
+        return False
 
 
-def capture_to_start():
-    current_date = datetime.today()
+def delay_to_close(browser):
     while True:
-        if current_date.weekday() == int(class_day):
-            current_date = datetime.today()
-            if current_date.hour < class_begin.hour:
-                delta = class_begin-current_date
-                print(f"Time is {current_date.isoformat(timespec='auto')}")
-                print(f"Sleep for {delta.seconds-60} seconds")
-                time.sleep(delta.seconds-600)
-            elif current_date.hour == class_begin.hour:
-                if current_date.minute < (class_begin.minute-1):
-                    delta = class_begin-current_date
-                    print(f"Time is {current_date.isoformat(timespec='auto')}")
-                    print(f"Sleep for {delta.seconds-60} seconds")
-                    time.sleep(delta.seconds)
-                else:
-                    delta = current_date-class_begin
-                    return int(config["CLASS_DURATION"])-delta.seconds
-            else:
-                delta = current_date-class_begin
-                if delta.seconds > 3000:
-                    print(f"{delta.seconds} seconds past the class ")
-                    return
-                else:
-                    delta = current_date-class_begin
-                    return int(config["CLASS_DURATION"])-delta.seconds
+        current_date_time = datetime.today()
+        if current_date_time < (class_date_time-timedelta(minutes=1)):
+            delta = class_date_time-current_date_time-timedelta(minutes=1)
+            print(
+                f"Time is {current_date_time.strftime('%H:%M:%S')}")
+            print(f"Sleep for {delta.seconds} seconds")
+            WebDriverWait(browser, delta.seconds).until(lambda _: False)
         else:
-            print(f"Today is {current_date.strftime('%A')}")
-            return
-            # delta = class_begin-current_date
-            # print(f"Sleep for {delta.seconds-3600} seconds") #this code sleep for along many days
-            # time.sleep(delta.seconds)
+            delta = current_date_time-class_date_time
+            print(
+                f"Time is {current_date_time.strftime('%H:%M:%S')}")
+            if delta.days == -1:
+                return int(config["CLASS_DURATION"])
+            return int(config["CLASS_DURATION"])-delta.seconds
 
 
 if __name__ == "__main__":
     config = dotenv_values(".env")
     class_day = config["CLASS_DAY"]
-    class_begin = datetime.strptime(config["CLASS_BEGIN"], '%H:%M:%S')
+    current_day = datetime.today()
+    current_weekday = current_day.weekday()
+    class_begin_time = datetime.strptime(
+        config["CLASS_BEGIN"], '%H:%M:%S').time()
+    class_date_time = datetime.combine(current_day.date(), class_begin_time)
     delay = 10
-    close_time = capture_to_start()
-    if close_time:
-        print("<<<< Opening Browser >>>>")
+    if current_weekday == int(class_day):
         browser = open_browser(url=str(config["URLPATH"]))
-        if browser:
-            browser = fill_input(browser)
-        if browser:
-            close_browser(browser, close_time)
+    else:
+        print(f"Today is {current_weekday}")
+        exit()
+    close_delay = delay_to_close(browser)
+    if close_delay < 2700:
+        print(
+            f"""{int(config["CLASS_DURATION"])-close_delay}seconds past the class""")
+        exit()
+    browser = fill_input(browser)
+    close_browser(browser, close_delay)
