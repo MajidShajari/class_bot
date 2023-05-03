@@ -84,7 +84,8 @@ if __name__ == "__main__":
     close_delay = delay_to_close(browser)
     if close_delay < 2700:
         print(
-            f"""{int(config["CLASS_DURATION"])-close_delay}seconds past the class""")
+            f"""{int(config["CLASS_DURATION"])-close_delay} seconds past the class""")
+        browser.close()
         exit()
     browser = fill_input(browser)
     close_browser(browser, close_delay)
