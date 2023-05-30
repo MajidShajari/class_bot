@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import sys
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
@@ -80,7 +81,7 @@ if __name__ == "__main__":
         browser = open_browser(url=str(config["URLPATH"]))
     else:
         print(f"Today is {current_weekday}")
-        exit()
+        sys.exit()
     close_delay = delay_to_close(browser)
     if close_delay < 2700:
         print(

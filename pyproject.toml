@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "capture-class"
+version = "0.1.0"
+description = "Selenium Script for Online Class Access"
+authors = ["Majid Shajari <majidpy89@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "capture_class"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.12"
+selenium = "*"
+python-dotenv = "*"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

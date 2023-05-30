@@ -1,8 +1,6 @@
 ## Selenium Script for Online Class Access
 
 This script is designed to automate the process of joining an online class. It uses the Selenium library to interact with a web browser and perform the necessary actions to join the class.
-Getting Started
-
 These instructions will help you set up and run the script on your local machine.
 ### Usage
 
